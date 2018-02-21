@@ -6,6 +6,7 @@
 using UnityEngine;
 using HoloToolkit.Sharing.Spawning;
 using HoloToolkit.Unity.InputModule;
+using UnityEngine.SceneManagement;
 
 namespace HoloToolkit.Sharing.Tests
 {
@@ -99,6 +100,35 @@ namespace HoloToolkit.Sharing.Tests
                     spawnManager.Delete(syncSpawnObject);
                 }
             }
+        }
+
+        //Doesnt actually reset the world, but keeps the anchor position and deletes all objects spawned so far
+        public void ResetWorld()
+        {
+            GameObject spawner = GameObject.FindGameObjectWithTag("spawner");
+            for (int i = 0; i < spawner.transform.childCount; i++)
+            {
+                Debug.Log(spawner.transform.GetChild(i).tag);
+                if (spawner.transform.GetChild(i).tag != "nodelete" || spawner.transform.GetChild(i).tag != "floor")
+                {
+                    var model = spawner.transform.GetChild(i).GetComponent<DefaultSyncModelAccessor>();
+                    if (model != null)
+                    {
+                        spawnManager.Delete(((SyncSpawnedObject)(model.SyncModel)));
+                    }
+                    else
+                    {
+                        GameObject.Destroy(spawner.transform.GetChild(i).gameObject);
+                    }
+                }
+            }
+        }
+
+        //Deletes everything and then reloads scene
+        public void ResetScene()
+        {
+            ResetWorld();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }
